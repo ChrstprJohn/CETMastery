@@ -10,8 +10,16 @@ datasource db {
   schemas  = ["app_private"]
 }
 
+enum ProfileRole {
+  user
+  admin
+
+  @@schema("app_private")
+}
+
 model Profile {
   id          String   @id @db.Uuid
+  role        ProfileRole @default(user)
   displayName String?  @map("display_name") @db.VarChar(120)
   firstName   String?  @map("first_name") @db.VarChar(120)
   lastName    String?  @map("last_name") @db.VarChar(120)

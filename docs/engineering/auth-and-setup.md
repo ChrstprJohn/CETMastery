@@ -80,7 +80,24 @@ All auth routes require `Authorization: Bearer <SUPABASE_ACCESS_TOKEN>`. The bea
 | GET | `/api/auth/me` | No body | `200`, verified user and own profile, or `profile: null` before bootstrap |
 | POST | `/api/auth/logout` | No body | `204`, revoke the caller's Supabase refresh session only |
 
-User response fields are `id`, `email`, and `provider`. Profile fields are `id`, `displayName`, `firstName`, `lastName`, `avatarUrl`, `locale`, `createdAt`, and `updatedAt`. Optional attributes are seeded from Supabase user metadata at first bootstrap and stay null if missing or invalid. Repeated bootstrap preserves existing fields and does not overwrite user edits. Full names are not split to guess given/family names. Metadata never grants roles or authorization. `/session` rejects client identity/profile fields. `/me` always uses the verified caller's ID and ignores user ID query parameters. Sessions are not stored in application tables.
+User response fields are `id`, `email`, and `provider`. Profile fields are `id`, `role`, `displayName`, `firstName`, `lastName`, `avatarUrl`, `locale`, `createdAt`, and `updatedAt`. Optional attributes are seeded from Supabase user metadata at first bootstrap and stay null if missing or invalid. Repeated bootstrap preserves existing fields and does not overwrite user edits or manually assigned roles. Full names are not split to guess given/family names. Metadata never grants roles or authorization. `/session` rejects client identity/profile fields, including `role`. `/me` always uses the verified caller's ID and ignores user ID query parameters. Sessions are not stored in application tables.
+
+### Manual role management
+
+Migration `202610260006_profile_roles` adds the non-null PostgreSQL/Prisma enum `ProfileRole` with values `user` and `admin`. Existing profiles and all new profiles default to `user`. Google sign-in is used for both roles. Role assignment is not based on an email allowlist or user-editable Supabase metadata.
+
+There is no role-editing API or profile-update API. Browser database roles have no grants on `app_private.profiles`; RLS remains enabled without browser policies, and the schema must remain unexposed. Profile bootstrap explicitly creates `user` profiles and never updates existing roles. Future admin endpoints must verify the caller and check their current stored role on the server; hiding frontend controls is not authorization.
+
+To change a role manually, find the intended account's UUID in **Supabase Authentication → Users**, confirm its identity, and run this in the trusted SQL Editor (replace the UUID placeholder):
+
+```sql
+UPDATE app_private.profiles
+SET role = 'admin', updated_at = CURRENT_TIMESTAMP
+WHERE id = 'VERIFIED-USER-UUID'
+RETURNING id, role;
+```
+
+Use `role = 'user'` to demote an account. Exactly one row should be returned; no row means that account has not bootstrapped a profile yet. Never put a fixed admin email or an automatic promotion rule into signup code. Refresh account details after a manual change. The private local setup notes record the owner's one-time promotion; personal account details do not belong in shared migrations.
 
 Auth responses are `Cache-Control: no-store`; endpoints are limited to 30 requests per minute per client IP. Missing/expired tokens return `401`; unsupported providers return `403`; unconfigured/unavailable auth services return `503`. Database errors return a generic `500` through the shared handler. Errors use `{ "error": { "message": "..." } }`.
 

@@ -7,6 +7,7 @@ export async function ensureProfile(prisma, user) {
       where: { id: user.id },
       create: {
         id: user.id,
+        role: 'user',
         displayName: text(metadata.full_name, 120) ?? text(metadata.name, 120) ?? text([firstName, lastName].filter(Boolean).join(' '), 120),
         firstName,
         lastName,

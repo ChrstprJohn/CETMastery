@@ -61,6 +61,7 @@ test('session bootstrap is idempotent and current-user reads stay scoped', async
   assert.equal(first.headers.get('cache-control'), 'no-store');
   const { data } = await first.json();
   assert.equal(data.profile.id, userId);
+  assert.equal(data.profile.role, 'user');
   assert.equal(data.profile.displayName, 'Sample Learner');
   assert.equal(data.profile.firstName, 'Sample');
   assert.equal(data.profile.lastName, 'Learner');
@@ -75,6 +76,13 @@ test('session bootstrap is idempotent and current-user reads stay scoped', async
   assert.equal(other.data.user.id, otherId);
   assert.equal(other.data.profile, null);
   assert.equal((await request('/session', 'google', 'POST', { userId: otherId, role: 'admin' })).status, 400);
+});
+
+test('users cannot change roles through request bodies or profile update routes', async () => {
+  assert.equal((await request('/session', 'google', 'POST', { role: 'admin' })).status, 400);
+  assert.equal((await request('/me', 'google', 'PATCH', { role: 'admin' })).status, 404);
+  assert.equal((await request('/session', 'google', 'PATCH', { role: 'admin' })).status, 404);
+  assert.equal((await (await request('/me?role=admin', 'google')).json()).data.profile.role, 'user');
 });
 
 test('sign-out revokes only the verified caller session', async () => {

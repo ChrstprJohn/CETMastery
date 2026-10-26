@@ -13,6 +13,7 @@ test('Prisma persists one profile per verified identity', { skip: !process.env.T
       ensureProfile(prisma, user), ensureProfile(prisma, user),
     ]);
     assert.equal(first.id, user.id);
+    assert.equal(first.role, 'user');
     assert.equal(second.createdAt.toISOString(), first.createdAt.toISOString());
     assert.equal(await prisma.profile.count({ where: { id: user.id } }), 1);
     assert.equal((await prisma.profile.findUnique({ where: { id: user.id } })).displayName, 'Prisma test learner');
@@ -20,9 +21,10 @@ test('Prisma persists one profile per verified identity', { skip: !process.env.T
     assert.equal(first.lastName, 'Learner');
     assert.equal(first.avatarUrl, 'https://example.test/avatar.jpg');
     assert.equal(first.locale, 'en-PH');
-    const edited = await prisma.profile.update({ where: { id: user.id }, data: { firstName: 'Edited', displayName: 'My chosen name' } });
+    const edited = await prisma.profile.update({ where: { id: user.id }, data: { role: 'admin', firstName: 'Edited', displayName: 'My chosen name' } });
     const again = await ensureProfile(prisma, user);
     assert.equal(again.firstName, 'Edited');
+    assert.equal(again.role, 'admin');
     assert.equal(again.displayName, 'My chosen name');
     assert.equal(again.updatedAt.toISOString(), edited.updatedAt.toISOString());
     const [security] = await prisma.$queryRaw`SELECT relrowsecurity FROM pg_class WHERE oid = 'app_private.profiles'::regclass`;

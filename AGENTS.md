@@ -11,6 +11,7 @@
 - `app_private.profiles` is a real application table for learner profiles. Preserve it when cleaning up demonstration tables. The temporary `crud_tests` table was created, tested, and removed through migrations.
 - Profile fields are independent of Google: optional display/first/last names, HTTPS avatar, locale, and timestamps. Seed metadata only for new profiles, preserve existing edits on repeat login, and never infer first/last names by splitting a full name. Supabase Auth owns email, credentials, verification, and linked identities.
 - Keep `app_private` outside the Supabase Data API's exposed schemas. Application data goes through Express and Prisma; protected queries must use the verified caller's identity.
+- Profiles have a `ProfileRole` enum (`user`, `admin`), defaulting to `user`. Roles are changed manually through trusted database access only. Never accept roles from request bodies, Supabase user metadata, or profile-edit forms; repeat sign-in must preserve manually assigned roles. Future admin endpoints must check the current database role for the verified caller.
 - Update the engineering docs and roadmap when schema or authentication behavior changes. See `docs/engineering/auth-and-setup.md` and `docs/engineering/google-auth-setup.md`.
 
 ## Environments and authentication

@@ -9,6 +9,7 @@ The full idea includes a curriculum platform, exam engine, progress system, AI c
 - Environment ownership: `backend/.env` and `frontend/.env` are separate; no root `.env` is used. Templates and [setup instructions](../engineering/auth-and-setup.md) are committed.
 - Completed: backend environment verification, live Prisma CRUD verification, and removal of the temporary `crud_tests` table. Profiles now include optional first/last/display names, avatar, locale, and timestamps; they can represent future non-Google users. Local/cloud migration history is preserved.
 - Do last in this auth slice: Google Cloud/Supabase provider configuration, disable Email and other providers, implement browser Google OAuth/callback and Axios token attachment, and verify live login/logout.
+- Roles: profiles default to `user`; `admin` is assigned manually through trusted database access. Role-editing APIs are intentionally absent. Admin endpoints must enforce the current database role when implemented.
 - Not implemented: email/password signup, saved practice attempts, learner progress, or the wider curriculum API.
 
 The current implementation priority is **backend endpoints first**, starting with authentication. The teaching and curriculum planning stages below remain relevant product work; they do not block this authorized backend setup.

@@ -9,6 +9,7 @@ Prisma is the selected ORM. Its source of truth is `backend/prisma/schema.prisma
 | Profile field | Purpose |
 |---|---|
 | `id` | Supabase user UUID, primary key; independent of login provider |
+| `role` | Required `ProfileRole` enum: `user` by default, or manually assigned `admin`; never user-editable |
 | `display_name` | Optional display name, up to 120 characters |
 | `first_name`, `last_name` | Optional given/family names, up to 120 characters each |
 | `avatar_url` | Optional HTTPS avatar URL, up to 2048 characters |
@@ -24,6 +25,8 @@ The nullable model can also represent future non-Google users without requiring 
 The profile ID logically references the identity managed by Supabase Auth; there is currently no database foreign key into `auth.users`. Prisma deliberately does not manage Supabase's Auth schema. Account deletion must include profile cleanup when that feature is implemented. The remaining entities below are planned, not generated tables.
 
 Google is the only supported provider. Express verifies bearer tokens through Supabase and uses the verified caller's UUID for Prisma queries. Browser roles receive no profile access policies; `app_private` must remain outside the Data API's exposed schemas. See [auth and setup](auth-and-setup.md) for the endpoints, migration commands, and environment configuration.
+
+Role changes require trusted manual database access. Session bootstrap ignores role metadata, rejects role request fields, and preserves existing roles. Any future profile-edit endpoint must allowlist editable display fields and exclude `role`; any future admin endpoint must check the current database role after verifying the caller.
 
 ## Proposed entities
 

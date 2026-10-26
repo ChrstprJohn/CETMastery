@@ -16,9 +16,19 @@ test('seeds optional Google fields without copying identity or privilege fields'
     id: 'spoofed', email: 'unused@example.test', password: 'unused', role: 'admin',
   });
   assert.deepEqual(profile, {
-    id: 'verified-user-id', displayName: 'Sam Lee', firstName: 'Sam', lastName: 'Lee',
+    id: 'verified-user-id', role: 'user', displayName: 'Sam Lee', firstName: 'Sam', lastName: 'Lee',
     avatarUrl: 'https://example.test/photo.jpg', locale: 'en-PH',
   });
+});
+
+test('repeat sign-in preserves a manually assigned admin role', async () => {
+  const stored = { id: 'verified-user-id', role: 'admin' };
+  const prisma = { profile: { async upsert(query) {
+    assert.equal(query.create.role, 'user');
+    assert.deepEqual(query.update, {});
+    return stored;
+  } } };
+  assert.equal((await ensureProfile(prisma, { id: stored.id, user_metadata: { role: 'user' } })).role, 'admin');
 });
 
 test('missing provider fields remain null and full names are never split', async () => {

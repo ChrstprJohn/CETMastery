@@ -81,7 +81,7 @@ content/               Reviewed, versioned content source files
 docs/                 Product, engineering, and planning documentation
 ```
 
-The frontend and backend are pnpm workspaces. Implemented slices include the landing page, public sample question delivery, answer checking, Prisma profiles, and protected auth endpoints. Google provider setup, frontend OAuth integration, applying migrations to the user's project, and persistent learning progress remain pending. See [auth and setup](auth-and-setup.md) for the current endpoint contract and environment instructions.
+The frontend and backend are pnpm workspaces. Implemented slices include the landing page, public sample question delivery, answer checking, Prisma profiles, and protected auth endpoints. Live Prisma CRUD checks passed; the temporary table was removed through a third migration. Local migration files and `public._prisma_migrations` retain the full structure-change history. Google provider setup, frontend OAuth integration, and persistent learning progress remain pending. See [auth and setup](auth-and-setup.md) for the current endpoint contract and environment instructions, and root `AGENTS.md` for migration rules.
 
 ## Environment and secrets
 
@@ -101,7 +101,7 @@ Before launch, define the VM provider, supported Node.js LTS version, health che
 
 1. Completed: JavaScript frontend, Express API, landing page, and a sample scored question.
 2. Completed in code: Prisma profile schema/migration and protected auth endpoints.
-3. Next: fill the separate environments and apply the migration to the development Supabase database.
+3. Completed: backend environment verification, Supabase migrations, live Prisma CRUD verification, and removal of the temporary test table while preserving history.
 4. Last in the auth slice: configure Google, disable email authentication, and connect browser OAuth and token attachment.
 5. Then add curriculum/lesson endpoints, reviewed questions, saved attempts, and progress.
 6. Validate the learner journey and deploy the vertical slice.

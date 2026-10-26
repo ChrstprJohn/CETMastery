@@ -7,7 +7,7 @@ const userId = 'dc93b010-e717-4ce4-bbd1-9d066f4a8d27';
 const otherId = '2112aa9e-409c-490a-bef2-507196b7d6c8';
 const profiles = new Map();
 const signouts = [];
-const user = { id: userId, email: 'learner@example.test', app_metadata: { provider: 'google' }, user_metadata: { full_name: 'Sample Learner', role: 'admin' } };
+const user = { id: userId, email: 'learner@example.test', app_metadata: { provider: 'google' }, user_metadata: { full_name: 'Sample Learner', given_name: 'Sample', family_name: 'Learner', picture: 'https://example.test/avatar.jpg', locale: 'en', role: 'admin' } };
 const database = { profile: {
   async upsert({ where, create }) {
     assert.equal(where.id, create.id);
@@ -62,6 +62,10 @@ test('session bootstrap is idempotent and current-user reads stay scoped', async
   const { data } = await first.json();
   assert.equal(data.profile.id, userId);
   assert.equal(data.profile.displayName, 'Sample Learner');
+  assert.equal(data.profile.firstName, 'Sample');
+  assert.equal(data.profile.lastName, 'Learner');
+  assert.equal(data.profile.avatarUrl, 'https://example.test/avatar.jpg');
+  assert.equal(data.profile.locale, 'en');
   assert.deepEqual(data.user, { id: userId, email: user.email, provider: 'google' });
   assert.equal((await request('/session', 'google', 'POST')).status, 200);
   assert.equal(profiles.size, 1);

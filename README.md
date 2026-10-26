@@ -72,6 +72,6 @@ API errors use `{ "error": { "message": "..." } }`. Practice requests are rate-l
 
 ## Current scope
 
-The question is demonstration content, not an official exam bank. Auth endpoints and the Prisma profile model/migration are implemented. Google provider configuration, frontend OAuth integration, and applying migrations to your own project are pending. Saved attempts, learner progress, email/password registration, and curriculum imports are not implemented. Auth routes fail clearly if their backend settings are blank; public endpoints continue working.
+The question is demonstration content, not an official exam bank. Auth endpoints and provider-independent Prisma profiles are implemented, including optional names, avatar, locale, and timestamps. Live Prisma CRUD checks passed, and the temporary test table was removed. Migration history is preserved locally and in `public._prisma_migrations`. Fresh checkouts still need their own environment and migration setup. [Google provider setup](docs/engineering/google-auth-setup.md) is next, followed by frontend OAuth integration. Saved attempts, learner progress, email/password registration, and curriculum imports are not implemented.
 
 For production, serve `frontend/dist` with an SPA fallback and proxy `/api` to the API using the same origin. `pnpm start` runs only the API. See the [architecture](docs/engineering/architecture.md) and [documentation index](docs/README.md) for the remaining product and deployment work.

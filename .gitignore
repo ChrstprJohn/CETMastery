@@ -9,3 +9,5 @@ coverage/
 Thumbs.db
 .taste-skill/
 backend/generated/
+.local/
+client_secret_*.json

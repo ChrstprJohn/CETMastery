@@ -7,7 +7,7 @@ The full idea includes a curriculum platform, exam engine, progress system, AI c
 - Completed: React/Vite frontend, Express backend, pnpm workspaces, responsive landing page, and a sample practice API.
 - Completed in code: Prisma 7 setup, private profile schema and migration, Google-only bearer verification, `POST /api/auth/session`, `GET /api/auth/me`, and `POST /api/auth/logout`.
 - Environment ownership: `backend/.env` and `frontend/.env` are separate; no root `.env` is used. Templates and [setup instructions](../engineering/auth-and-setup.md) are committed.
-- Next: fill the backend Supabase/database environment values and apply the Prisma migration to the development project.
+- Completed: backend environment verification, live Prisma CRUD verification, and removal of the temporary `crud_tests` table. Profiles now include optional first/last/display names, avatar, locale, and timestamps; they can represent future non-Google users. Local/cloud migration history is preserved.
 - Do last in this auth slice: Google Cloud/Supabase provider configuration, disable Email and other providers, implement browser Google OAuth/callback and Axios token attachment, and verify live login/logout.
 - Not implemented: email/password signup, saved practice attempts, learner progress, or the wider curriculum API.
 

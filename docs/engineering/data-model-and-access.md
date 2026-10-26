@@ -4,7 +4,22 @@ This is a domain sketch for discussion, not a finalized SQL schema. Normalize re
 
 ## Implemented initial model
 
-Prisma is the selected ORM. Its source of truth is `backend/prisma/schema.prisma`, with SQL migrations in `backend/prisma/migrations/`. The first migration creates `app_private.profiles`: `id` (verified Supabase UUID, primary key), nullable `display_name` (up to 120 characters), and `created_at`. Profile bootstrap is idempotent. Email and passwords are not duplicated in application storage.
+Prisma is the selected ORM. Its source of truth is `backend/prisma/schema.prisma`, with SQL migrations in `backend/prisma/migrations/`. The first migration creates `app_private.profiles`; migration `202610260004_expand_profiles` adds optional personal-display fields. Profile bootstrap is idempotent. Email and passwords are not duplicated in application storage.
+
+| Profile field | Purpose |
+|---|---|
+| `id` | Supabase user UUID, primary key; independent of login provider |
+| `display_name` | Optional display name, up to 120 characters |
+| `first_name`, `last_name` | Optional given/family names, up to 120 characters each |
+| `avatar_url` | Optional HTTPS avatar URL, up to 2048 characters |
+| `locale` | Optional canonical language tag, up to 35 characters |
+| `created_at`, `updated_at` | Creation and last profile modification timestamps |
+
+`locale` is the user's language/region preference, such as `en-PH` (English, Philippines). It can guide date/number formatting and future translations. It is optional, is not a physical location, and must not be used to infer residence or timezone.
+
+On first bootstrap, display fields are seeded from the verified user's Supabase metadata when available. Supported inputs are `full_name`/`name`, `given_name`/`first_name`, `family_name`/`last_name`, `avatar_url`/`picture`, and `locale`. Names are display data, never authorization inputs. Missing values stay null; full names are never split heuristically. Repeated sign-ins preserve existing profile fields, including edits. Supabase user IDs and linked identities remain the identity source; do not join accounts by matching names or email addresses alone.
+
+The nullable model can also represent future non-Google users without requiring Google-specific IDs or passwords. Other sign-in methods remain disabled until explicitly requested. Future education-specific requirements may still need normal migrations.
 
 The profile ID logically references the identity managed by Supabase Auth; there is currently no database foreign key into `auth.users`. Prisma deliberately does not manage Supabase's Auth schema. Account deletion must include profile cleanup when that feature is implemented. The remaining entities below are planned, not generated tables.
 

@@ -19,4 +19,6 @@
 - Backend configuration belongs in `backend/.env`; public frontend configuration belongs in `frontend/.env`. No shared root `.env` is used. Never print or commit credentials, or put database URLs in `VITE_` variables.
 - Supabase handles Google authentication; Prisma handles application data. Configure Google Client ID and Client Secret in the hosted Supabase Google provider settings, not in frontend environment variables.
 - Google-only sign-in is selected. Do not introduce email/password registration unless the user requests it.
+- Any Google account may join; the user explicitly chose not to restrict access to testers. Google exempts basic `openid email profile` sign-in from its testing-user allowlist. Do not add a separate tester allowlist or extra scopes unless requested.
+- Browser logout uses the Supabase SDK with `scope: 'local'` directly. Do not block local session cleanup on a preceding Express logout request. Keep auth-state callbacks synchronous and exchange callback codes only once.
 - Private configuration notes and credential backups belong in ignored `.local/`. Never stage or print their secret contents. `.local/google-auth.private.md` records the user's Google/Supabase configuration and distinguishes verified values from pending dashboard steps.

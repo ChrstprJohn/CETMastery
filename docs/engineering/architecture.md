@@ -78,7 +78,7 @@ content/               Reviewed, versioned content source files
 docs/                 Product, engineering, and planning documentation
 ```
 
-These application folders are planned, not generated yet. Keep the frontend and backend in one repository. Add files and layers only when a feature needs them.
+The frontend and backend are now implemented as pnpm workspaces. The initial slice includes the landing page, public sample question delivery, server-side answer checking, and API integration tests. Supabase environment examples and client helpers are prepared; authentication, database migrations, and persistent progress remain future work. See the root README for commands. Add files and layers only when a feature needs them.
 
 ## Environment and secrets
 

@@ -1,0 +1,19 @@
+{
+  "name": "cetmastery",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.24.0",
+  "type": "module",
+  "workspaces": ["frontend", "backend"],
+  "engines": { "node": ">=24.0.0" },
+  "scripts": {
+    "dev": "concurrently --kill-others --names api,web \"pnpm --filter @cetmastery/backend dev\" \"pnpm --filter @cetmastery/frontend dev\"",
+    "dev:frontend": "pnpm --filter @cetmastery/frontend dev",
+    "dev:backend": "pnpm --filter @cetmastery/backend dev",
+    "build": "pnpm --filter @cetmastery/frontend build",
+    "start": "pnpm --filter @cetmastery/backend start",
+    "test": "pnpm --filter @cetmastery/backend test",
+    "check": "pnpm test && pnpm build"
+  },
+  "devDependencies": { "concurrently": "^9.2.1" }
+}

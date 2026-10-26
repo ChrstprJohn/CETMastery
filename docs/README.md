@@ -2,7 +2,7 @@
 
 CETMastery is a browser-based entrance-exam preparation platform: study a lesson, practice a skill, receive feedback, and track progress toward larger assessments.
 
-The selected application stack is **React + Vite, Express, Axios, and JavaScript**. Supabase is the working direction for PostgreSQL and authentication, with the backend hosted on a VM. Recommended supporting tools and unresolved choices are labeled in the architecture document.
+The selected application stack is **React + Vite, Express, Axios, JavaScript, and Prisma ORM**. Supabase supplies PostgreSQL and Google-only authentication. The frontend and backend use separate environment files. Google provider setup and browser sign-in integration come after the backend endpoints; see the setup guide below.
 
 ## Read in this order
 
@@ -18,7 +18,8 @@ The selected application stack is **React + Vite, Express, Axios, and JavaScript
 ## Engineering documentation
 
 - [Data model and access](engineering/data-model-and-access.md) — proposed entities, versioning, and access boundaries.
+- [Auth endpoints and environment setup](engineering/auth-and-setup.md) — implemented endpoints, dedicated frontend/backend environments, Prisma commands, and deferred Google configuration.
 
 ## Documentation status
 
-This repository currently contains planning documents, not an implemented application. Product thresholds, target exam, pilot subject, hosting provider, and final schema remain open. There are no code examples in these docs. The roadmap contains the consolidated open questions; update it as decisions are made.
+Implemented: responsive landing page, sample practice API, Prisma profile schema/migration, and protected auth endpoints with tests. Google dashboard configuration, frontend OAuth integration, deployed database migration, saved learner progress, and the broader curriculum remain pending. Product thresholds, target exam, pilot subject, and hosting provider are still open. The roadmap tracks delivery status and unresolved choices.

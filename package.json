@@ -13,7 +13,7 @@
     "build": "pnpm --filter @cetmastery/frontend build",
     "start": "pnpm --filter @cetmastery/backend start",
     "test": "pnpm --filter @cetmastery/backend test",
-    "check": "pnpm test && pnpm build"
+    "check": "pnpm --filter @cetmastery/backend db:validate && pnpm test && pnpm build"
   },
   "devDependencies": { "concurrently": "^9.2.1" }
 }

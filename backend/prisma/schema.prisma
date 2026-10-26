@@ -1,0 +1,20 @@
+generator client {
+  // JavaScript output keeps this application free of a TypeScript build step.
+  provider   = "prisma-client-js"
+  output     = "../generated/prisma"
+  engineType = "client"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["app_private"]
+}
+
+model Profile {
+  id          String   @id @db.Uuid
+  displayName String?  @map("display_name") @db.VarChar(120)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("profiles")
+  @@schema("app_private")
+}

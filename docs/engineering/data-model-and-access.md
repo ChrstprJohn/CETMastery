@@ -2,6 +2,14 @@
 
 This is a domain sketch for discussion, not a finalized SQL schema. Normalize repeated concepts and choose concrete types and constraints during schema design.
 
+## Implemented initial model
+
+Prisma is the selected ORM. Its source of truth is `backend/prisma/schema.prisma`, with SQL migrations in `backend/prisma/migrations/`. The first migration creates `app_private.profiles`: `id` (verified Supabase UUID, primary key), nullable `display_name` (up to 120 characters), and `created_at`. Profile bootstrap is idempotent. Email and passwords are not duplicated in application storage.
+
+The profile ID logically references the identity managed by Supabase Auth; there is currently no database foreign key into `auth.users`. Prisma deliberately does not manage Supabase's Auth schema. Account deletion must include profile cleanup when that feature is implemented. The remaining entities below are planned, not generated tables.
+
+Google is the only supported provider. Express verifies bearer tokens through Supabase and uses the verified caller's UUID for Prisma queries. Browser roles receive no profile access policies; `app_private` must remain outside the Data API's exposed schemas. See [auth and setup](auth-and-setup.md) for the endpoints, migration commands, and environment configuration.
+
 ## Proposed entities
 
 | Entity | Purpose | Example relationships |
@@ -47,5 +55,5 @@ If direct browser-to-Supabase access is later used for low-risk reads, expose on
 | Another user's attempts and profile data | No | No | Restricted support/admin access |
 | Draft or retired content | No | No | Authorized content workflow |
 
-Implement this matrix with server authorization and database policies. Keep service-role credentials out of browser contexts; they bypass RLS.
+Implement this matrix with server authorization and database policies. Prisma runs only in Express using a trusted database connection. Keep database URLs out of browser contexts; this connection may bypass RLS and requires explicit ownership checks. A Supabase service-role key is not used by the current implementation.
 

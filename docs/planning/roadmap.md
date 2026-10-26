@@ -2,6 +2,17 @@
 
 The full idea includes a curriculum platform, exam engine, progress system, AI content factory, and production operations. Build and validate those in stages. The first goal is to prove that one learner can study one skill, get useful feedback, and know what to do next.
 
+## Current delivery status
+
+- Completed: React/Vite frontend, Express backend, pnpm workspaces, responsive landing page, and a sample practice API.
+- Completed in code: Prisma 7 setup, private profile schema and migration, Google-only bearer verification, `POST /api/auth/session`, `GET /api/auth/me`, and `POST /api/auth/logout`.
+- Environment ownership: `backend/.env` and `frontend/.env` are separate; no root `.env` is used. Templates and [setup instructions](../engineering/auth-and-setup.md) are committed.
+- Next: fill the backend Supabase/database environment values and apply the Prisma migration to the development project.
+- Do last in this auth slice: Google Cloud/Supabase provider configuration, disable Email and other providers, implement browser Google OAuth/callback and Axios token attachment, and verify live login/logout.
+- Not implemented: email/password signup, saved practice attempts, learner progress, or the wider curriculum API.
+
+The current implementation priority is **backend endpoints first**, starting with authentication. The teaching and curriculum planning stages below remain relevant product work; they do not block this authorized backend setup.
+
 ## Stage 1: Define the target
 
 Write a one-page brief answering:
@@ -52,7 +63,7 @@ Implement only what the validated learning slice needs:
 - answer feedback and optional targeted practice;
 - saved attempts and basic progress.
 
-Use React + Vite in JavaScript for the frontend and Express in JavaScript for the VM-hosted API. Use Axios for API requests, Supabase Auth for sign-in, and Supabase PostgreSQL for data. Keep answer keys and scoring in Express. Route application data through Express; browser access to Supabase is initially limited to authentication.
+Use React + Vite in JavaScript for the frontend and Express in JavaScript for the VM-hosted API. Use Axios for API requests, Supabase Auth for Google-only sign-in, and Prisma for Supabase PostgreSQL application data. Email registration is excluded. Keep answer keys and scoring in Express. Route application data through Express; browser access to Supabase is initially limited to authentication.
 
 ## Stage 5: Expand after the first loop works
 
@@ -70,7 +81,7 @@ Start with a structured content file and a repeatable seed process. Automate dra
 
 ## First concrete task
 
-Fill out the Stage 1 brief and choose one sub-topic for the pilot. Then write its learning objective, lesson outline, five-question quiz blueprint, and review checklist. That is the smallest concrete specification that will make implementation decisions useful instead of speculative.
+Complete the environment and database setup described above, then connect and verify Google auth last. Continue the curriculum brief in parallel with this backend-first work: choose the target exam and pilot sub-topic, then define its learning objective, lesson outline, quiz blueprint, and review checklist before adding curriculum endpoints.
 
 ## Unresolved product and deployment decisions
 

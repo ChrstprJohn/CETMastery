@@ -9,18 +9,19 @@ The user has selected React + Vite, Express, Axios, and JavaScript. Use `.js` an
 | Browser application | React + Vite, JavaScript / JSX | Selected |
 | HTTP client | Axios | Selected |
 | Application API | Express, JavaScript | Selected |
-| Database | Supabase PostgreSQL | Working direction |
-| Authentication | Supabase Auth | Working direction |
+| Database | Supabase PostgreSQL | Selected |
+| Database access and migrations | Prisma ORM 7 with PostgreSQL adapter | Selected and configured |
+| Authentication | Supabase Auth, Google only | Protected API implemented; provider setup and frontend integration deferred |
 | API deployment | VM | Working direction; provider undecided |
 | Routing | React Router | Recommended |
-| Styling and components | Tailwind CSS; shadcn/ui configured for JavaScript | Recommended |
-| Input validation | Zod, used at runtime in JavaScript | Recommended |
+| Styling | Plain CSS with shared tokens | Implemented |
+| Input validation | Zod, used at runtime in JavaScript | Implemented |
 | Lesson and math rendering | Markdown + KaTeX | Recommended |
 | Server data caching | TanStack Query | Optional; not selected for the initial implementation |
 
 ## Application boundaries
 
-The browser signs in with Supabase Auth. For application requests, Axios sends the access token to Express in the Authorization header. Express verifies the token and derives the current user from it, then checks permissions before accessing PostgreSQL through server-side Supabase clients.
+The planned browser flow signs in through Google using Supabase Auth. For application requests, Axios will send the Supabase access token to Express in the Authorization header. Express now verifies the token using Supabase `getUser`, requires a Google account, and derives the current user from that verified response. Application data is accessed through server-side **Prisma**, with queries scoped to the caller. Frontend sign-in/token attachment is the next integration step, not implemented yet.
 
 ```text
 React browser application
@@ -29,7 +30,7 @@ React browser application
   | Axios + access token, /api requests
   v
 Express API on the VM
-  | verified identity, permissions, validation, scoring
+  | verified identity, permissions, validation, scoring, Prisma ORM
   v
 Supabase PostgreSQL
 ```
@@ -57,7 +58,7 @@ Axios performs HTTP requests. TanStack Query is an optional layer that manages f
 - Make submissions safe to retry and use database transactions for writes that must succeed together.
 - Return consistent errors, log failures without secrets, and rate-limit sensitive routes.
 
-A privileged Supabase client bypasses RLS. If used, keep it server-only and explicitly enforce authorization in Express. Never trust a user ID or score supplied by the browser. Keep answer-key tables unavailable to browser database roles.
+Prisma uses a trusted PostgreSQL connection that may bypass RLS. Explicitly enforce authorization in Express and scope each user-owned query by the verified identity. Application tables live in the unexposed `app_private` schema, with RLS enabled and no browser policies. The Supabase client is used only for Auth operations with a publishable key; a service-role key is not needed. Never trust a user ID or score supplied by the browser. Keep answer-key tables unavailable to browser database roles.
 
 ## Proposed repository structure
 
@@ -68,23 +69,25 @@ frontend/              React + Vite application
     pages/             Route screens
     lib/               Axios and Supabase Auth clients
 backend/               Express application
+  prisma/              Prisma schema and committed SQL migrations
+  generated/prisma/    Generated JavaScript client (ignored)
   src/
     routes/            HTTP endpoints
     middleware/        Authentication, validation, errors
     services/          Scoring and application operations
-supabase/
-  migrations/          Version-controlled database changes
+    lib/               Server-only Prisma client
+supabase/              Supabase ownership and access notes
 content/               Reviewed, versioned content source files
 docs/                 Product, engineering, and planning documentation
 ```
 
-The frontend and backend are now implemented as pnpm workspaces. The initial slice includes the landing page, public sample question delivery, server-side answer checking, and API integration tests. Supabase environment examples and client helpers are prepared; authentication, database migrations, and persistent progress remain future work. See the root README for commands. Add files and layers only when a feature needs them.
+The frontend and backend are pnpm workspaces. Implemented slices include the landing page, public sample question delivery, answer checking, Prisma profiles, and protected auth endpoints. Google provider setup, frontend OAuth integration, applying migrations to the user's project, and persistent learning progress remain pending. See [auth and setup](auth-and-setup.md) for the current endpoint contract and environment instructions.
 
 ## Environment and secrets
 
 Frontend configuration contains only public values such as the Supabase URL, publishable key, and API base URL. Vite exposes frontend environment values in the browser bundle; never put privileged credentials there.
 
-Backend configuration holds database or privileged Supabase credentials and server settings. Keep real environment files out of Git, commit placeholder `.env.example` files when implementing, and configure deployment secrets outside the repository.
+`backend/.env` contains the API settings, public Supabase verification settings, runtime `DATABASE_URL`, and migration `DIRECT_URL`. `frontend/.env` contains only public browser configuration and its Vite proxy target. There is no shared root environment file. Both real environment files are ignored by Git, with committed `.env.example` templates. Configure deployment secrets outside the repository.
 
 ## VM deployment
 
@@ -96,13 +99,12 @@ Before launch, define the VM provider, supported Node.js LTS version, health che
 
 ## Implementation order
 
-1. Validate one lesson-to-quiz flow using static sample data.
-2. Create the JavaScript frontend and Express backend.
-3. Define schema, migrations, and access rules.
-4. Connect sign-in and one protected API endpoint.
-5. Add lesson delivery and questions without answer keys.
-6. Add server-side scoring, saved attempts, and progress.
-7. Add reviewed content imports and deploy the vertical slice.
+1. Completed: JavaScript frontend, Express API, landing page, and a sample scored question.
+2. Completed in code: Prisma profile schema/migration and protected auth endpoints.
+3. Next: fill the separate environments and apply the migration to the development Supabase database.
+4. Last in the auth slice: configure Google, disable email authentication, and connect browser OAuth and token attachment.
+5. Then add curriculum/lesson endpoints, reviewed questions, saved attempts, and progress.
+6. Validate the learner journey and deploy the vertical slice.
 
 See [data model and access](data-model-and-access.md) for entities and [the roadmap](../planning/roadmap.md) for scope and unresolved decisions.
 
@@ -113,3 +115,4 @@ See [data model and access](data-model-and-access.md) for entities and [the road
 - [TanStack Query overview](https://tanstack.com/query/latest/docs/framework/react/overview)
 - [Supabase authentication](https://supabase.com/docs/guides/auth)
 - [Supabase Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
+- [Prisma ORM](https://www.prisma.io/docs/orm)

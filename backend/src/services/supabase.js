@@ -1,12 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 import { env } from '../config/env.js';
+import { HttpError } from '../middleware/errors.js';
 
-// Privileged access is server-only. Future routes must verify identity and ownership.
-export function getSupabaseAdmin() {
-  if (!env.SUPABASE_URL || !env.SUPABASE_SECRET_KEY) {
-    throw new Error('Supabase server credentials are not configured.');
+let client;
+
+export function getSupabaseAuth() {
+  if (!env.SUPABASE_URL || !env.SUPABASE_PUBLISHABLE_KEY) {
+    throw new HttpError(503, 'Authentication is not configured yet.');
   }
-  return createClient(env.SUPABASE_URL, env.SUPABASE_SECRET_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
+  client ??= createClient(env.SUPABASE_URL, env.SUPABASE_PUBLISHABLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
+  return client;
 }

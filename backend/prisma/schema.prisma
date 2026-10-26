@@ -31,3 +31,54 @@ model Profile {
   @@map("profiles")
   @@schema("app_private")
 }
+
+model Subject {
+  id String @id @default(uuid()) @db.Uuid
+  name String @db.VarChar(120)
+  slug String @unique @db.VarChar(160)
+  description String @default("") @db.VarChar(2000)
+  sortOrder Int @default(0) @map("sort_order")
+  isPublished Boolean @default(false) @map("is_published")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  topics Topic[]
+  @@index([sortOrder, id])
+  @@map("subjects")
+  @@schema("app_private")
+}
+
+model Topic {
+  id String @id @default(uuid()) @db.Uuid
+  subjectId String @map("subject_id") @db.Uuid
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Restrict)
+  title String @db.VarChar(120)
+  slug String @db.VarChar(160)
+  description String @default("") @db.VarChar(2000)
+  sortOrder Int @default(0) @map("sort_order")
+  isPublished Boolean @default(false) @map("is_published")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  lessons Lesson[]
+  @@unique([subjectId, slug])
+  @@index([subjectId, sortOrder, id])
+  @@map("topics")
+  @@schema("app_private")
+}
+
+model Lesson {
+  id String @id @default(uuid()) @db.Uuid
+  topicId String @map("topic_id") @db.Uuid
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Restrict)
+  title String @db.VarChar(120)
+  slug String @db.VarChar(160)
+  summary String @default("") @db.VarChar(2000)
+  content String @default("") @db.Text
+  sortOrder Int @default(0) @map("sort_order")
+  isPublished Boolean @default(false) @map("is_published")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  @@unique([topicId, slug])
+  @@index([topicId, sortOrder, id])
+  @@map("lessons")
+  @@schema("app_private")
+}

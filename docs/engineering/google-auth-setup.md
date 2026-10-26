@@ -1,6 +1,6 @@
 # Google sign-in setup
 
-Supabase handles Google OAuth and issues the session. Express verifies that session; Prisma stores the learner profile. Google credentials belong in the hosted Supabase provider configuration. This guide prepares that configuration; the browser sign-in button and callback are not implemented yet.
+Supabase handles Google OAuth and issues the session. Express verifies that session; Prisma stores the learner profile. Google credentials belong in the hosted Supabase provider configuration. The landing page now has Google-only Sign up and Log in dialogs, a PKCE callback, account display, and sign-out. First sign-in creates a Supabase account and bootstraps the Prisma profile; returning users use the same Google flow.
 
 ## Profile information available at sign-in
 
@@ -46,13 +46,13 @@ Use **http://localhost:5174** for this Google setup. If starting the frontend on
 pnpm --filter @cetmastery/frontend dev --port 5174
 ```
 
-The default `pnpm dev` frontend port is 5173; use the command above when relying on the 5174 settings below. Start the API separately with `pnpm dev:backend`. If you choose a different port or use `127.0.0.1` instead of `localhost`, update the console and Supabase URL settings to match the actual browser origin.
+The default `pnpm dev` frontend port is 5174, matching the Google configuration. Start the API separately with `pnpm dev:backend` when running only the frontend command above. Always use `localhost:5174` for sign-in: PKCE verifier storage belongs to the browser origin where sign-in starts. If you choose a different port or hostname, update both Google and Supabase URLs consistently.
 
 ## Your steps in Google Cloud
 
 1. Open [Google Cloud Console](https://console.cloud.google.com/) and create or select the **CETMastery** project.
 2. Open **Google Auth Platform**. If prompted, click **Get started**. Under **Branding**, set app name **CETMastery**, your support email, and your developer contact email.
-3. Under **Audience**, choose **External** for personal Gmail accounts. While the app is in testing, add your Google account and any other testers under **Test users**.
+3. Under **Audience**, choose **External** for personal Gmail accounts. CETMastery allows any Google account and only requests basic `openid email profile` information. Google makes an exception to its testing allowlist for these basic identity scopes, so users do not need to be listed as testers for our current login flow. Test-user restrictions apply if additional Google permissions are requested while the OAuth app is in Testing. Do not add extra scopes just to force an allowlist.
 4. Under **Data Access**, use only the basic sign-in scopes: `openid`, `https://www.googleapis.com/auth/userinfo.email`, and `https://www.googleapis.com/auth/userinfo.profile`. Email/profile may already be selected. No Gmail, Drive, or Calendar access is needed.
 5. Under **Clients**, choose **Create client → Web application**. Name it **CETMastery Web**.
 6. Add this **Authorized JavaScript origin**:
@@ -90,9 +90,19 @@ The default `pnpm dev` frontend port is 5173; use the command above when relying
 
 The two callback URLs have different owners: Google sends the result to Supabase's `/auth/v1/callback`; Supabase then sends the browser to our future `/auth/callback` route.
 
-## Next implementation step
+## Test sign-up and login
 
-After the provider settings are saved, implement the Google button and PKCE callback, attach the Supabase access token to Axios, and call `POST /api/auth/session` to create the Prisma profile. Then verify sign-in, `/me`, repeat login, and sign-out. Console configuration alone does not add the login UI.
+1. Open `http://localhost:5174` and choose **Sign up** or **Log in**.
+2. Choose **Continue with Google** and complete the Google consent flow. A new Google user is automatically registered by Supabase; a returning Google user signs in.
+3. Supabase returns to `/auth/callback`; the app exchanges the one-use PKCE code once, calls `POST /api/auth/session`, and opens the account dialog on the homepage.
+4. Confirm the displayed email and name. You can also check **Supabase → Authentication → Users** and **Table Editor → app_private → profiles**.
+5. Sign out, then sign in again. The same profile should be returned, with no duplicate row or overwritten profile edits.
+
+Axios attaches the current Supabase access token to API requests. Session restoration uses the SDK's auth-state subscription; no async API work runs inside that callback. Invalid or cancelled OAuth codes display a recovery screen and are removed from the address bar. Profile bootstrap is safe to retry.
+
+Browser sign-out uses `supabase.auth.signOut({ scope: 'local' })` directly, revoking the current refresh session and clearing browser storage. It does not depend on the Express API being reachable and does not sign out other devices. If Supabase reports a remote failure after clearing local storage, the UI distinguishes local sign-out from unconfirmed remote revocation. The Express logout endpoint remains available for API clients; the browser does not need to call it as a separate prerequisite.
+
+Current validation includes frontend auth-service tests, backend validation/ownership tests, and build checks. Completing the real Google consent flow still requires the user to sign in with their own account. Public sample practice is not saved yet.
 
 ## References
 
@@ -100,3 +110,9 @@ After the provider settings are saved, implement the Google button and PKCE call
 - [Supabase redirect URL settings](https://supabase.com/docs/guides/auth/redirect-urls)
 - [Google OAuth web clients](https://developers.google.com/identity/protocols/oauth2/web-server)
 - [Google OpenID Connect profile claims](https://developers.google.com/identity/openid-connect/openid-connect)
+- [Google testing-mode exception for basic identity scopes](https://support.google.com/cloud/answer/15549945?hl=en)
+- [Supabase browser sign-out and scopes](https://supabase.com/docs/guides/auth/signout)
+
+## Curriculum admin workspace
+
+See [curriculum administration](admin-curriculum.md) for `/admin`, Google admin sign-in, the disabled development bypass, and database admin-role enforcement.

@@ -13,7 +13,7 @@ pnpm install
 pnpm dev
 ```
 
-Open [localhost:5173](http://localhost:5173). Vite proxies `/api` to Express at `127.0.0.1:3001`. Both run in the foreground; Ctrl+C stops the development session.
+Open [localhost:5174](http://localhost:5174). Vite proxies `/api` to Express at `127.0.0.1:3001`. Both run in the foreground; Ctrl+C stops the development session. Use this exact hostname and port for Google sign-in so the configured redirects and PKCE browser storage match.
 
 No credentials are needed for the homepage or sample question. **Each workspace has a dedicated environment file:** `frontend/.env` and `backend/.env`, copied from its own `.env.example`. There is no root `.env`. Fill the backend Supabase URL/publishable key and Prisma database URLs first; Google provider setup and frontend sign-in integration come last. Never place database URLs or secret keys in a `VITE_` variable. If you change the backend port, update `API_PROXY_TARGET` in the frontend environment too. See [auth and environment setup](docs/engineering/auth-and-setup.md) for exactly what to configure.
 
@@ -50,7 +50,7 @@ docs/                  Product and engineering plans
 |---|---|
 | `pnpm dev` | Start frontend and backend together |
 | `pnpm dev:frontend` / `pnpm dev:backend` | Start either workspace |
-| `pnpm check` | Validate Prisma, run API tests, and build the frontend |
+| `pnpm check` | Validate Prisma, run frontend/backend tests, and build the frontend |
 | `pnpm build` | Build static assets in `frontend/dist` |
 | `pnpm start` | Run the Express API without a watcher |
 | `pnpm --filter @cetmastery/backend db:generate` | Generate the Prisma Client |
@@ -72,6 +72,6 @@ API errors use `{ "error": { "message": "..." } }`. Practice requests are rate-l
 
 ## Current scope
 
-The question is demonstration content, not an official exam bank. Auth endpoints and provider-independent Prisma profiles are implemented, including optional names, avatar, locale, and timestamps. Live Prisma CRUD checks passed, and the temporary test table was removed. Migration history is preserved locally and in `public._prisma_migrations`. Fresh checkouts still need their own environment and migration setup. [Google provider setup](docs/engineering/google-auth-setup.md) is next, followed by frontend OAuth integration. Saved attempts, learner progress, email/password registration, and curriculum imports are not implemented.
+The question is demonstration content, not an official exam bank. Google-only signup/login, callback, session restoration, account display, sign-out, auth endpoints, and provider-independent Prisma profiles are implemented. Any Google account may join using basic identity permissions; no tester allowlist is enabled. Live Prisma CRUD checks passed, and the temporary test table was removed. Migration history is preserved locally and in `public._prisma_migrations`. Fresh checkouts need their own environment and [Google provider setup](docs/engineering/google-auth-setup.md). Saved attempts, learner progress, email/password registration, and curriculum imports are not implemented.
 
 For production, serve `frontend/dist` with an SPA fallback and proxy `/api` to the API using the same origin. `pnpm start` runs only the API. See the [architecture](docs/engineering/architecture.md) and [documentation index](docs/README.md) for the remaining product and deployment work.

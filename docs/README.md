@@ -18,9 +18,9 @@ The selected application stack is **React + Vite, Express, Axios, JavaScript, an
 ## Engineering documentation
 
 - [Data model and access](engineering/data-model-and-access.md) — proposed entities, versioning, and access boundaries.
-- [Auth endpoints and environment setup](engineering/auth-and-setup.md) — implemented endpoints, dedicated frontend/backend environments, Prisma commands, and deferred Google configuration.
+- [Auth endpoints and environment setup](engineering/auth-and-setup.md) — implemented endpoints, dedicated frontend/backend environments, Prisma commands, and Google session handling.
 - [Google sign-in setup](engineering/google-auth-setup.md) — exact Google Cloud/Supabase settings and environment values for this project.
 
 ## Documentation status
 
-Implemented: responsive landing page, sample practice API, provider-independent Prisma profiles with optional names/avatar/locale, and protected auth endpoints with tests. Live Prisma CRUD checks passed, and the temporary test table was removed through a migration; applied history is retained. Google dashboard configuration, frontend OAuth integration, saved learner progress, and the broader curriculum remain pending. Product thresholds, target exam, pilot subject, and hosting provider are still open. The roadmap tracks delivery status and unresolved choices; root `AGENTS.md` records migration rules for future agents.
+Implemented: responsive landing page, sample practice API, Google-only signup/login and PKCE callback, session restoration, account/logout UI, provider-independent Prisma profiles, and protected auth endpoints with tests. Live Prisma CRUD checks passed, and the temporary test table was removed through a migration; applied history is retained. Real Google consent must be completed by the user. Saved learner progress and the broader curriculum remain pending. The roadmap tracks unresolved choices; root `AGENTS.md` records migration and authentication rules.

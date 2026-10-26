@@ -16,4 +16,6 @@ students.jpg
 https://images.unsplash.com/photo-1523240795612-9a054b0db644
 
 Fonts: Figtree and League Spartan, SIL Open Font License.
+Google G sign-in mark: https://developers.google.com/static/identity/images/g-logo.png
+Used to identify Google as the authentication provider.
 Full font licenses are in /fonts/Figtree-LICENSE.txt and /fonts/LeagueSpartan-LICENSE.txt.

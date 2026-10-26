@@ -7,7 +7,7 @@ const questions = [
   ['What is CETMastery?', 'CETMastery is a college entrance exam preparation platform in development. We’re starting with focused lessons, skill-based practice, and clear explanations.'],
   ['Can I try it without an account?', 'Yes. The sample mathematics question above is open to everyone. Choose an answer to see the worked solution.'],
   ['Which entrance exams are covered?', 'The first exam program and curriculum are still being defined. This preview demonstrates the learning approach and does not claim official exam coverage.'],
-  ['Will my practice be saved?', 'This public sample does not save attempts. Accounts and personal progress tracking are planned for a future release.'],
+  ['Will my practice be saved?', 'You can create an account with Google. This public sample does not save practice attempts yet; personal progress tracking is coming later.'],
 ];
 
 export default function HomePage() {

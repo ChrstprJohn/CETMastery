@@ -30,6 +30,6 @@ export function requireAuth(getAuthClient) {
     }
 
     req.auth = { user, accessToken: match[1] };
-    next();
+    return next();
   };
 }

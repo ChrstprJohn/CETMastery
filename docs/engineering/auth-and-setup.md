@@ -4,11 +4,11 @@
 
 The backend uses **Prisma 7 + PostgreSQL** for application data and **Supabase Auth** to verify identities. Only Google accounts are accepted by the application API. Email/password registration, magic links, and anonymous accounts are not supported.
 
-This is an endpoints-first slice. The homepage remains public. Google OAuth buttons, the browser callback, and Google provider configuration are deferred until the backend and environments are ready. `POST /api/auth/session` does not sign a user in or issue tokens: it creates the application profile after Supabase has authenticated the user.
+The homepage remains public and now includes Google-only Sign up and Log in dialogs. The browser uses Supabase PKCE, exchanges its callback code once, attaches access tokens to Axios, and restores the session on reload. `POST /api/auth/session` does not issue tokens: it creates the application profile after Supabase has authenticated the user. Any Google account may join; there is no tester-email allowlist. Only basic identity permissions are requested.
 
 ## Set up now: separate environment files
 
-There is **no root `.env`**. Each workspace owns its own file. Both real files are ignored by Git; only `.env.example` templates are committed. The current backend environment has been configured and verified against Supabase; frontend auth settings remain deferred. If setting up a fresh checkout, run from the root:
+There is **no root `.env`**. Each workspace owns its own file. Both real files are ignored by Git; only `.env.example` templates are committed. Both local environments are configured; the backend database and public Supabase key were verified. If setting up a fresh checkout, run from the root:
 
 ```powershell
 Copy-Item backend/.env.example backend/.env
@@ -38,8 +38,8 @@ No Google client ID, Google client secret, Supabase secret key, or service-role 
 |---|---|
 | `VITE_API_BASE_URL` | `/api` |
 | `API_PROXY_TARGET` | `http://127.0.0.1:3001`; Vite server configuration only |
-| `VITE_SUPABASE_URL` | Leave blank until browser auth integration; then copy the public project URL |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Leave blank until browser auth integration; then copy the public publishable key |
+| `VITE_SUPABASE_URL` | Public Supabase project URL, matching the backend |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Public Supabase publishable key, matching the backend |
 
 Vite loads the frontend directory's environment explicitly. Its `VITE_` values are public browser configuration. Never put `DATABASE_URL`, `DIRECT_URL`, database passwords, or privileged keys there. Node startup scripts and Prisma configuration load only the backend directory's environment file.
 
@@ -101,17 +101,17 @@ Use `role = 'user'` to demote an account. Exactly one row should be returned; no
 
 Auth responses are `Cache-Control: no-store`; endpoints are limited to 30 requests per minute per client IP. Missing/expired tokens return `401`; unsupported providers return `403`; unconfigured/unavailable auth services return `503`. Database errors return a generic `500` through the shared handler. Errors use `{ "error": { "message": "..." } }`.
 
-Supabase access tokens remain valid until their expiry even after refresh-session revocation. The future browser integration must clear its local session on sign-out as well. Token refresh stays with the Supabase SDK; Express does not accept or store refresh tokens.
+Supabase access tokens remain valid until their expiry even after refresh-session revocation. Browser sign-out calls the Supabase SDK directly with local scope, which handles revocation and browser cleanup without requiring a separate Express call. The API logout route is available to API clients. Token refresh stays with the Supabase SDK; Express does not accept or store refresh tokens.
 
 ## Google provider and frontend integration
 
-1. Create/configure a Google OAuth **Web application** in Google Cloud. Set its authorized redirect URI to the exact Supabase callback URL shown in the Google provider settings (`https://PROJECT.supabase.co/auth/v1/callback`). Configure test users if the consent screen is in testing mode.
+1. Create/configure a Google OAuth **Web application** in Google Cloud. Set its authorized redirect URI to the exact Supabase callback URL shown in the Google provider settings (`https://PROJECT.supabase.co/auth/v1/callback`). Basic identity scopes are exempt from Google's testing-user restriction; any Google account may use this app.
 2. Enable Google in Supabase Authentication providers using that client ID and secret. **Disable the Email provider**, anonymous sign-ins, and other providers. Keep new Google-user sign-ups allowed if learners should be able to join on first sign-in.
-3. Choose one local frontend origin. The preview used `http://127.0.0.1:5174` because port 5173 was occupied; the default dev configuration is port 5173. Add the chosen origin and the future `/auth/callback` URL to Supabase URL Configuration. Use exact production URLs when deployed.
-4. Fill the two public frontend Supabase values. Implement `signInWithOAuth({ provider: 'google' })` with PKCE and a callback on the same browser. Exchange the callback code once, attach the resulting access token to Axios requests, and call `POST /api/auth/session`.
+3. Use the local frontend origin `http://localhost:5174`. Add that Site URL and `http://localhost:5174/auth/callback` to Supabase URL Configuration. Use exact production URLs when deployed.
+4. Fill the two public frontend Supabase values. The implemented browser flow uses `signInWithOAuth({ provider: 'google' })` with PKCE and a callback on the same origin, exchanges the callback code once, attaches the access token to Axios, and calls `POST /api/auth/session`.
 5. Verify a complete Google login, `/me`, duplicate bootstrap, sign-out, and failure paths against the real project. This live OAuth check has not been performed.
 
-See [Google sign-in setup](google-auth-setup.md) for the exact Google Cloud steps, project-specific callback URL, Supabase provider settings, and environment values. Provider configuration is the current next step; no Google sign-in UI is shipped yet.
+See [Google sign-in setup](google-auth-setup.md) for exact Google Cloud steps, the project callback URL, Supabase settings, and a real sign-up/login test checklist. The Google-only UI is implemented; real consent is completed by the user in their browser.
 
 ## Verification
 
@@ -128,3 +128,7 @@ On 2026-10-26, live Prisma create/read/update/delete operations passed against t
 - [Supabase Google authentication](https://supabase.com/docs/guides/auth/social-sign-in/auth-google)
 - [Server-side user verification](https://supabase.com/docs/reference/javascript/auth-getuser)
 - [Sign-out behavior and token lifetime](https://supabase.com/docs/guides/auth/signout)
+
+## Curriculum admin workspace
+
+See [curriculum administration](admin-curriculum.md) for `/admin`, Google admin sign-in, the disabled development bypass, and database admin-role enforcement.

@@ -11,7 +11,7 @@ The user has selected React + Vite, Express, Axios, and JavaScript. Use `.js` an
 | Application API | Express, JavaScript | Selected |
 | Database | Supabase PostgreSQL | Selected |
 | Database access and migrations | Prisma ORM 7 with PostgreSQL adapter | Selected and configured |
-| Authentication | Supabase Auth, Google only | Protected API implemented; provider setup and frontend integration deferred |
+| Authentication | Supabase Auth, Google only | Google signup/login, callback, session restoration, account UI, and protected API implemented |
 | API deployment | VM | Working direction; provider undecided |
 | Routing | React Router | Recommended |
 | Styling | Plain CSS with shared tokens | Implemented |
@@ -21,7 +21,7 @@ The user has selected React + Vite, Express, Axios, and JavaScript. Use `.js` an
 
 ## Application boundaries
 
-The planned browser flow signs in through Google using Supabase Auth. For application requests, Axios will send the Supabase access token to Express in the Authorization header. Express now verifies the token using Supabase `getUser`, requires a Google account, and derives the current user from that verified response. Application data is accessed through server-side **Prisma**, with queries scoped to the caller. Frontend sign-in/token attachment is the next integration step, not implemented yet.
+The browser signs in through Google using Supabase Auth with PKCE. The callback exchanges the one-use code and bootstraps the learner profile. Axios sends the Supabase access token to Express in the Authorization header. Express verifies it using Supabase `getUser`, requires a Google account, and derives the current user from that verified response. Application data is accessed through server-side **Prisma**, with queries scoped to the caller. Any Google account may join; only basic identity scopes are requested, and no tester allowlist is enabled.
 
 ```text
 React browser application
@@ -81,7 +81,7 @@ content/               Reviewed, versioned content source files
 docs/                 Product, engineering, and planning documentation
 ```
 
-The frontend and backend are pnpm workspaces. Implemented slices include the landing page, public sample question delivery, answer checking, Prisma profiles, and protected auth endpoints. Live Prisma CRUD checks passed; the temporary table was removed through a third migration. Local migration files and `public._prisma_migrations` retain the full structure-change history. Google provider setup, frontend OAuth integration, and persistent learning progress remain pending. See [auth and setup](auth-and-setup.md) for the current endpoint contract and environment instructions, and root `AGENTS.md` for migration rules.
+The frontend and backend are pnpm workspaces. Implemented slices include the landing page, public sample practice, Google-only signup/login, account and logout UI, Prisma profiles, and protected auth endpoints. Live Prisma CRUD checks passed; the temporary table was removed through a migration. Local migration files and `public._prisma_migrations` retain the full structure-change history. Google provider is enabled; real Google consent is completed by the user. Persistent learning progress remains pending. See [auth and setup](auth-and-setup.md) and root `AGENTS.md` for the current contract and migration rules.
 
 ## Environment and secrets
 
@@ -102,7 +102,7 @@ Before launch, define the VM provider, supported Node.js LTS version, health che
 1. Completed: JavaScript frontend, Express API, landing page, and a sample scored question.
 2. Completed in code: Prisma profile schema/migration and protected auth endpoints.
 3. Completed: backend environment verification, Supabase migrations, live Prisma CRUD verification, and removal of the temporary test table while preserving history.
-4. Last in the auth slice: configure Google, disable email authentication, and connect browser OAuth and token attachment.
+4. Implemented: Google-only browser OAuth, PKCE callback, token attachment, and direct SDK sign-out. Complete real signup/login testing in the user's browser and keep Email disabled in Supabase.
 5. Then add curriculum/lesson endpoints, reviewed questions, saved attempts, and progress.
 6. Validate the learner journey and deploy the vertical slice.
 

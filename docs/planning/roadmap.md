@@ -8,9 +8,11 @@ The full idea includes a curriculum platform, exam engine, progress system, AI c
 - Completed in code: Prisma 7 setup, private profile schema and migration, Google-only bearer verification, `POST /api/auth/session`, `GET /api/auth/me`, and `POST /api/auth/logout`.
 - Environment ownership: `backend/.env` and `frontend/.env` are separate; no root `.env` is used. Templates and [setup instructions](../engineering/auth-and-setup.md) are committed.
 - Completed: backend environment verification, live Prisma CRUD verification, and removal of the temporary `crud_tests` table. Profiles now include optional first/last/display names, avatar, locale, and timestamps; they can represent future non-Google users. Local/cloud migration history is preserved.
-- Do last in this auth slice: Google Cloud/Supabase provider configuration, disable Email and other providers, implement browser Google OAuth/callback and Axios token attachment, and verify live login/logout.
+- Implemented: landing-page Google Sign up/Log in dialogs, PKCE callback, Axios token attachment, account/session restoration, and direct SDK sign-out. The Google provider is enabled; verify complete login/logout in the user's browser and keep Email/other providers disabled.
+- Access policy: any Google account may join using basic identity scopes. Google's testing-user list is not an app access restriction for those scopes; no app tester allowlist is requested.
 - Roles: profiles default to `user`; `admin` is assigned manually through trusted database access. Role-editing APIs are intentionally absent. Admin endpoints must enforce the current database role when implemented.
-- Not implemented: email/password signup, saved practice attempts, learner progress, or the wider curriculum API.
+- Implemented: subjects/topics/lessons tables and `/admin` CRUD with validation, Markdown text, draft state, ordering, parent selection and restricted parent deletion. No content is seeded. Admin protection is enabled with Google sign-in and database admin roles; signed-in non-admins see Access denied. The development bypass is disabled.
+- Not implemented: learner curriculum display, quizzes, saved practice attempts, learner progress, or email/password signup.
 
 The current implementation priority is **backend endpoints first**, starting with authentication. The teaching and curriculum planning stages below remain relevant product work; they do not block this authorized backend setup.
 
@@ -109,3 +111,7 @@ Complete the environment and database setup described above, then connect and ve
 - High availability and scaling design, until expected usage and availability targets are known.
 - Pricing, subscription tiers, and analytics, unless they change the initial learner journey.
 
+
+## Current module milestone
+
+Manage subjects, topics and lessons through `/admin` first. Next, verify admin Google sign-in in the user browser, then build learner browsing of published content. Quizzes and progress follow later. See [admin setup](../engineering/admin-curriculum.md).

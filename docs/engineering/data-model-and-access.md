@@ -22,7 +22,7 @@ On first bootstrap, display fields are seeded from the verified user's Supabase 
 
 The nullable model can also represent future non-Google users without requiring Google-specific IDs or passwords. Other sign-in methods remain disabled until explicitly requested. Future education-specific requirements may still need normal migrations.
 
-The profile ID logically references the identity managed by Supabase Auth; there is currently no database foreign key into `auth.users`. Prisma deliberately does not manage Supabase's Auth schema. Account deletion must include profile cleanup when that feature is implemented. The remaining entities below are planned, not generated tables.
+The profile ID logically references the identity managed by Supabase Auth; there is currently no database foreign key into `auth.users`. Prisma deliberately does not manage Supabase's Auth schema. Account deletion must include profile cleanup when that feature is implemented. Subjects, topics, and lessons are also implemented; see [curriculum administration](admin-curriculum.md). The other entities below remain planned.
 
 Google is the only supported provider. Express verifies bearer tokens through Supabase and uses the verified caller's UUID for Prisma queries. Browser roles receive no profile access policies; `app_private` must remain outside the Data API's exposed schemas. See [auth and setup](auth-and-setup.md) for the endpoints, migration commands, and environment configuration.
 
@@ -75,3 +75,7 @@ If direct browser-to-Supabase access is later used for low-risk reads, expose on
 
 Implement this matrix with server authorization and database policies. Prisma runs only in Express using a trusted database connection. Keep database URLs out of browser contexts; this connection may bypass RLS and requires explicit ownership checks. A Supabase service-role key is not used by the current implementation.
 
+
+## Implemented curriculum hierarchy
+
+The current module editor uses three explicit tables: `subjects -> topics -> lessons`, rather than the proposed generic curriculum_nodes tree below. Lessons store Markdown text. This simpler hierarchy is the selected first version; quizzes, assessments and progress are deferred. See [curriculum administration](admin-curriculum.md) for fields, validation and access rules.
